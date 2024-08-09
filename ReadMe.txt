@@ -1,1 +1,1 @@
-Please do not use it for commercial purposes. All codes in this repository are original and all rights belong to the author.
+Please use it for academic purposes only. All codes in this repository are original and all rights belong to the author.
