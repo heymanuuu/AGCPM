@@ -3,56 +3,44 @@ set ns [new Simulator]
 proc finish {} {
     global ns nf
     $ns flush-trace
-
-    close $nf
-    
+    close $nf   
     #exec nam ./nam/starlink2_1.nam 
 }
+
 # Create trace files
 set tracefile [open ./tr/starlink2_1.tr w]
 $ns trace-all $tracefile
 set nf [open ./nam/starlink2_1.nam w]
 $ns namtrace-all $nf
 
-
 array set nodes {}
-
 
 proc createSatelliteNodes {filename ns} {
     global nodes
     set node_num 0
     set node_count 0
-
     set nodeFile [open $filename r]
     set data [read $nodeFile]
     close $nodeFile
-
     set data [string trim $data]
     set lines [split $data "\n"]
 
     foreach line $lines {
         set line [string trim $line]
-
         set satellite_names [split $line " "]
-        
+       
         foreach satellite_name $satellite_names {
             if {$satellite_name ne ""} {
                 set node [$ns node]
                 set nodes($satellite_name) $node
                 puts "Created node for satellite: $satellite_name"
-                
                 incr node_num
                 incr node_count
             }
         }
     }
-
     return $node_count
 }
-
-
-
-
 
 proc createLinksFromDelayFile {filename ns} {
     global nodes
@@ -68,7 +56,6 @@ proc createLinksFromDelayFile {filename ns} {
         if {[string trim $line] eq ""} {
             continue
         }
-
         # Parse each line to get satellite names and delay
         set parts [split $line]
         if {[llength $parts] != 3} {
@@ -79,14 +66,13 @@ proc createLinksFromDelayFile {filename ns} {
         set satellite1 [lindex $parts 0]
         set satellite2 [lindex $parts 1]
         set delay [lindex $parts 2]
- 
+        
         # Create bidirectional links between nodes
         $ns duplex-link $nodes($satellite1) $nodes($satellite2) 200Mb ${delay}ms DropTail
         #puts ${delay}ms
         # Set the link cost (delay) using the 'cost' command
         $ns cost $nodes($satellite1) $nodes($satellite2) $delay
         $ns cost $nodes($satellite2) $nodes($satellite1) $delay
-
         # Output for verification
         #puts "Created bidirectional link between $satellite1 and $satellite2 with delay $delay ms"
         incr links_cnt
@@ -94,13 +80,9 @@ proc createLinksFromDelayFile {filename ns} {
         #puts "num of links : $links_cnt"
 }
 
-
-
-
 # create satellite nodes
 createSatelliteNodes "./sat/starlinkNode1.txt" $ns
 #puts "Total nodes created: $nodeCount"
-
 
 set SenderPlace "SenderPlace"
 set ReceiverPlace "ReceiverPlace"
@@ -109,10 +91,8 @@ set nodes($SenderPlace) $node
 set node [$ns node]
 set nodes($ReceiverPlace) $node
 
-
 # Assuming nodes array is already populated from createSatelliteNodes function
 createLinksFromDelayFile "./linkInfo/starlinkDelay1.txt" $ns
-
 
 Agent/TCP set dupacks_ 1
 Agent/TCP set cwnd_ 50
@@ -139,12 +119,8 @@ $cbr set packetSize_ 800
 $cbr set rate_ 5M
 $cbr set random_ 1
 
-
-
 $ns at 1.0 "$cbr start"
+$ns at 4000.0 "$cbr stop"
 
-$ns at 6.0 "$cbr stop"
-
-
-$ns at 12 "finish"
+$ns at 5000 "finish"
 $ns run
