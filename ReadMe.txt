@@ -1,1 +1,1 @@
-STATEMENT:Please use it for academic purposes only. All codes in this repository are original and all rights belong to the author.
+Disclaimer: Please use it for academic purposes only. All codes in this repository are created by the author and all rights belong to the author.
